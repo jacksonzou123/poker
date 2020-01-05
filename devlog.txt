@@ -1,2 +1,5 @@
-leiJun -- 08:21
+leiJun -- 2020-01-05 16:14
+	Revamp makefile and restructure current code.
+
+leiJun -- 2020-01-03 08:21
 	Added project structure.
