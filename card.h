@@ -3,4 +3,6 @@ struct card{
   int num;
 };
 
-void getCards(char *deck[]);
+void getCards(struct card deck[]);
+
+void printCard(struct card input);
