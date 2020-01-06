@@ -38,5 +38,5 @@ void shuffle(CARD *deck[], int n)
 
 void printCard(CARD *input)
 {
-  printf("%c%d\n", input->suit, input->num);
+  printf("[%c %d]\n", input->suit, input->num);
 }
