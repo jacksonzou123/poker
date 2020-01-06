@@ -3,9 +3,8 @@
 
 int main(int argc, char const *argv[])
 {
-  CARD *deck[52];
-  build_deck(deck);
-  shuffle(deck, 52);
+  CARD deck[13];
+  getCards(deck);
   int i = 0;
   for (i = 0; i < 52; i++)
   {

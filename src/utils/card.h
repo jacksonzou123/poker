@@ -12,9 +12,12 @@ typedef struct card
   int num;
 } CARD;
 
-void build_deck(CARD **);
-void swap(CARD *, CARD *);
-void shuffle(CARD **, int);
-void printCard(CARD *);
+// void build_deck(CARD **);
+// void swap(CARD *, CARD *);
+// void shuffle(CARD **, int);
+// void printCard(CARD *);
+//void getCards(char *deck[]);
+void getCards(CARD deck[]);
+void printCard(CARD input);
 
 #endif
