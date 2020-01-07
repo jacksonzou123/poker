@@ -1,8 +1,14 @@
+zouJac -- 2020-01-04 19:04
+	Print out cards with unicode characters
+
 leiJun -- 2020-01-05 21:43
 	Added UDP networking implementation and parser skeleton.
 
 leiJun -- 2020-01-05 16:14
 	Revamp makefile and restructure current code.
+
+zouJac -- 2020-01-04 19:04
+	Randomized card picker
 
 leiJun -- 2020-01-03 08:21
 	Added project structure.
