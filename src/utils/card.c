@@ -36,7 +36,6 @@
 //   }
 // }
 
-
 void getCards(struct card deck[]) {
   char * suits = "dchs";
   int i;
@@ -59,5 +58,34 @@ void getCards(struct card deck[]) {
 
 void printCard(CARD input)
 {
-  printf("[%c %d]\n", input.suit, input.num);
+  setlocale(LC_CTYPE, "");
+  wchar_t suit;
+  if (input.suit == 'd') {
+    suit = 0x2666;
+  }
+  if (input.suit == 's') {
+    suit = 0x2660;
+  }
+  if (input.suit == 'h') {
+    suit = 0x2665;
+  }
+  if (input.suit == 'c') {
+    suit = 0x2663;
+  }
+  printf("[%lc %d]\n", suit, input.num);
+}
+
+//royal flush -> 10
+//straight flush
+//four of a kind
+//full house
+//flush
+//straight
+//triple
+//two pairs
+//pair
+//high card -> 1
+
+int getValue(CARD * hand) {
+  return 0;
 }
