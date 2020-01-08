@@ -12,6 +12,17 @@ typedef struct card
   int num;
 } CARD;
 
+typedef struct hand
+{
+  char player[256];
+  CARD hand[2];
+};
+
+typedef struct deck
+{
+  CARD deck[13];
+} DECK;
+
 typedef int boolean;
 #define TRUE 1;
 #define FALSE 0;
