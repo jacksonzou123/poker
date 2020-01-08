@@ -16,11 +16,12 @@ typedef struct hand
 {
   char player[256];
   CARD hand[2];
-};
+} HAND;
 
 typedef struct deck
 {
-  CARD deck[13];
+  HAND hand[4];
+  CARD house[5];
 } DECK;
 
 typedef int boolean;
