@@ -3,12 +3,8 @@
 
 int main(int argc, char const *argv[])
 {
-  CARD deck[13];
+  DECK * deck = malloc(sizeof(DECK));
   getCards(deck);
-  int i = 0;
-  for (i = 0; i < 52; i++)
-  {
-    printCard(deck[i]);
-  }
+  printDeck(deck);
   return 0;
 }

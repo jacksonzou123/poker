@@ -33,7 +33,8 @@ typedef int boolean;
 // void shuffle(CARD **, int);
 // void printCard(CARD *);
 //void getCards(char *deck[]);
-void getCards(CARD deck[]);
+void getCards(DECK * deck);
 void printCard(CARD input);
+void printDeck(DECK * deck);
 
 #endif
