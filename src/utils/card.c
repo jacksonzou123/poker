@@ -122,6 +122,8 @@ void printDeck(DECK * deck) {
 //pair
 //high card -> 1
 
+
+//count is the number of cards in the house being used
 int getValue(DECK * deck, int player, int count) {
   CARD hand[2 + count];
   hand[0] = deck->hand[player].hand[0];
