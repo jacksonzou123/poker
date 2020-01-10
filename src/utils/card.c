@@ -92,14 +92,19 @@ void printCard(CARD input)
 
 void printDeck(DECK * deck) {
   //printf("JEFF SUCKS\n");
+  printf("Player 0 Cards:\n");
   printCard(deck->hand[0].hand[0]);
   printCard(deck->hand[0].hand[1]);
+  printf("Player 1 Cards:\n");
   printCard(deck->hand[1].hand[0]);
   printCard(deck->hand[1].hand[1]);
+  printf("Player 2 Cards:\n");
   printCard(deck->hand[2].hand[0]);
   printCard(deck->hand[2].hand[1]);
+  printf("Player 3 Cards:\n");
   printCard(deck->hand[3].hand[0]);
   printCard(deck->hand[3].hand[1]);
+  printf("Field\n");
   printCard(deck->house[0]);
   printCard(deck->house[1]);
   printCard(deck->house[2]);
@@ -117,9 +122,104 @@ void printDeck(DECK * deck) {
 //pair
 //high card -> 1
 
-// int getValue(DECK deck, int player, int count) {
-//   struct card card1 = deck.hand[player].hand[0];
-//   if (count == 0) {
-//     if deck
-//   }
-// }
+int getValue(DECK * deck, int player, int count) {
+  CARD hand[2 + count];
+  hand[0] = deck->hand[player].hand[0];
+  hand[1] = deck->hand[player].hand[1];
+
+  int i;
+  for (i = 0; i < count; i++) {
+    hand[2+i] = deck->house[i];
+  }
+
+  if (count <= 2) {
+    return countMultiple(hand, count+2);
+  }
+  if (count >= 3) {
+    int highest = 1;
+    int multiple = countMultiple(hand, count+2);
+    if (multiple > highest) {
+      highest = multiple;
+    }
+    return highest;
+  }
+  return 0;
+}
+
+int countMultiple(CARD hand[], int numCards) {
+  int counter[13] = {0};
+  int i;
+
+  int two = 0;
+  int three = 0;
+
+  for (i = 0; i < numCards; i++) {
+    counter[hand[i].num-1]++;
+  }
+
+  //count doubles, triples, quads
+  for (i = 0; i < 13; i++) {
+    if (counter[i] == 2) {
+      two++;
+    }
+    if (counter[i] == 3) {
+      three++;
+    }
+    if (counter[i] == 4) {
+      return 8;
+    }
+  }
+
+  if (three == 1) {
+    if (two > 0) {
+      //full house
+      return 7;
+    }
+    //triples
+    return 4;
+  }
+  if (two >= 2) {
+    //two pair
+    return 3;
+  }
+  if (two == 1) {
+    //pair
+    return 2;
+  }
+  //nothing
+  return 1;
+}
+
+int checkStraightFlush(CARD hand[], int numCards) {
+  int scheck[13];
+  int fcheck[4]; //d-0 c-1 h-2 s-3
+
+  int straight = 0;
+  int flush = 0;
+
+  for (i = 0; i < numCards; i++) {
+    scheck[hand[i].num-1]++;
+    if (hand[i].suit == 'd') {
+      fcheck[0]++;
+    }
+    if (hand[i].suit == 'c') {
+      fcheck[1]++;
+    }
+    if (hand[i].suit == 'h') {
+      fcheck[2]++;
+    }
+    if (hand[i].suit == 's') {
+      fcheck[3]++;
+    }
+  }
+
+  //look for flushes
+  for (i = 0; i < 4; i++) {
+    if (fcheck[i] >= 5) {
+      flush = 1;
+    }
+  }
+  return 0;
+  //look for straights
+
+}
