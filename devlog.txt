@@ -1,3 +1,6 @@
+zouJac -- 2020-01-09 18:04
+	Can get card rank if it is a hand with multiple cards of the same number
+
 zouJac -- 2020-01-04 19:04
 	Print out cards with unicode characters
 
