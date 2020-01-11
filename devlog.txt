@@ -1,5 +1,11 @@
-zouJac -- 2020-01-09 18:04
+zouJac -- 2020-01-10 23:58
+	Check for straight/flush
+
+zouJac -- 2020-01-10 18:04
 	Can get card rank if it is a hand with multiple cards of the same number
+
+linJef -- 2020-01-10 10:25
+		Fixed syntax.
 
 zouJac -- 2020-01-04 19:04
 	Print out cards with unicode characters
@@ -15,4 +21,3 @@ zouJac -- 2020-01-04 19:04
 
 leiJun -- 2020-01-03 08:21
 	Added project structure.
-	
