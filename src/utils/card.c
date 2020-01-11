@@ -134,14 +134,21 @@ int getValue(DECK * deck, int player, int count) {
     hand[2+i] = deck->house[i];
   }
 
+  // for (i = 0; i < count+2; i++) {
+  //   printCard(hand[i]);
+  // }
   if (count <= 2) {
     return countMultiple(hand, count+2);
   }
   if (count >= 3) {
     int highest = 1;
-    int multiple = countMultiple(hand, count+2);
-    if (multiple > highest) {
-      highest = multiple;
+    int check = countMultiple(hand, count+2);
+    if (check > highest) {
+      highest = check;
+    }
+    check = checkStraightFlush(hand, count+2);
+    if (check > highest) {
+      highest = check;
     }
     return highest;
   }
@@ -158,6 +165,8 @@ int countMultiple(CARD hand[], int numCards) {
   for (i = 0; i < numCards; i++) {
     counter[hand[i].num-1]++;
   }
+
+
 
   //count doubles, triples, quads
   for (i = 0; i < 13; i++) {
@@ -193,12 +202,13 @@ int countMultiple(CARD hand[], int numCards) {
 }
 
 int checkStraightFlush(CARD hand[], int numCards) {
-  int scheck[13];
-  int fcheck[4]; //d-0 c-1 h-2 s-3
+  int scheck[13] = {0};
+  int fcheck[4] = {0}; //d-0 c-1 h-2 s-3
 
   int straight = 0;
   int flush = 0;
 
+  int i;
   for (i = 0; i < numCards; i++) {
     scheck[hand[i].num-1]++;
     if (hand[i].suit == 'd') {
@@ -215,13 +225,49 @@ int checkStraightFlush(CARD hand[], int numCards) {
     }
   }
 
+  // for (i = 0; i < 4; i++) {
+  //   printf("%d\n", fcheck[i]);
+  // }
+
   //look for flushes
   for (i = 0; i < 4; i++) {
     if (fcheck[i] >= 5) {
       flush = 1;
     }
   }
-  return 0;
+
+  int counter = 0;
+  int highest = 0;
+  for (i = 0; i <= 13; i++) {
+    if (i == 13) {
+      if (scheck[0]) {
+        if (counter >= 4) {
+          straight = 1;
+          highest = 1;
+        }
+      }
+    }
+    else {
+      if (scheck[i]) {
+        counter++;
+      }
+      else {
+        counter = 0;
+      }
+      if (counter >= 5) {
+        highest = i-1;
+        straight = 1;
+      }
+    }
+  }
+
+  if (flush) {
+    return 6;
+  }
+  if (straight) {
+    return 5;
+  }
+  return 1;
   //look for straights
 
 }
