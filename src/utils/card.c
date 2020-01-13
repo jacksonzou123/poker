@@ -124,7 +124,42 @@ void printDeck(DECK * deck) {
 
 
 //count is the number of cards in the house being used
-int getValue(DECK * deck, int player, int count) {
+char * getValue(DECK * deck, int player, int count) {
+  int value = handValue(deck, player, count);
+  if (value == 1) {
+    return "high card";
+  }
+  if (value == 2) {
+    return "pair";
+  }
+  if (value == 3) {
+    return "two pair";
+  }
+  if (value == 4) {
+    return "triple";
+  }
+  if (value == 5) {
+    return "straight";
+  }
+  if (value == 6) {
+    return "flush";
+  }
+  if (value == 7) {
+    return "full house";
+  }
+  if (value == 8) {
+    return "four of a kind";
+  }
+  if (value == 9) {
+    return "straight flush";
+  }
+  if (value == 10) {
+    return "royal flush";
+  }
+  return "dab";
+}
+
+int handValue(DECK * deck, int player, int count) {
   CARD hand[2 + count];
   hand[0] = deck->hand[player].hand[0];
   hand[1] = deck->hand[player].hand[1];
@@ -165,8 +200,6 @@ int countMultiple(CARD hand[], int numCards) {
   for (i = 0; i < numCards; i++) {
     counter[hand[i].num-1]++;
   }
-
-
 
   //count doubles, triples, quads
   for (i = 0; i < 13; i++) {

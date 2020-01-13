@@ -36,7 +36,8 @@ typedef int boolean;
 void getCards(DECK * deck);
 void printCard(CARD input);
 void printDeck(DECK * deck);
-int getValue(DECK * deck, int player, int count);
+char * getValue(DECK * deck, int player, int count);
+int handValue(DECK * deck, int player, int count);
 
 int countMultiple(CARD hand[], int numCards);
 int checkStraightFlush(CARD hand[], int numCards);
