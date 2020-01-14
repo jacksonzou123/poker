@@ -11,8 +11,7 @@ void error_check(char *msg, int code)
 
 void serve(const char *port)
 {
-  int parentfd, childfd;
-  int clientlen;
+  int parentfd, childfd, clientlen;
   struct sockaddr_in serveraddr, clientaddr;
   char buf[BUFSIZE];
 
@@ -117,12 +116,11 @@ void serve(const char *port)
       }
     }
 
-    /* if a connection request has arrived, process it */
+    /* 
+     * if a connection request has arrived, process it 
+     */
     if (FD_ISSET(parentfd, &readfds))
     {
-      printf("Received a connection request.\nserver> ");
-      fflush(stdout);
-
       /* 
        * accept: wait for a connection request 
        */
@@ -136,14 +134,26 @@ void serve(const char *port)
       error_check("ERROR reading from socket",
                   read(childfd, buf, BUFSIZE));
 
+      printf("Received a connection request:\n%s\nserver> ", buf);
+      fflush(stdout);
+
       /* 
        * write: echo the input string back to the client 
        */
+      bzero(buf, BUFSIZE);
       error_check("ERROR writing to socket",
                   write(childfd, buf, strlen(buf)));
 
       close(childfd);
     }
+
+    for (int fd = 0; fd < MAX_QUEUE_SIZE; fd++)
+      if (FD_ISSET(fd, &readfds))
+      {
+        bzero(buf, BUFSIZE);
+        error_check("ERROR writing to socket",
+                    write(childfd, buf, strlen(buf)));
+      }
   }
 
   /* clean up */

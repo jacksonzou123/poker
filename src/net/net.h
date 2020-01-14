@@ -1,5 +1,7 @@
 #ifndef NET_H
 
+#include "../utils/card.h"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
