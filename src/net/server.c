@@ -1,163 +1,236 @@
 #include "net.h"
 
-void error_check(char *msg, int code)
+void log(int f, char *buffer)
 {
-  if (code < 0)
-  {
-    perror(msg);
-    exit(EXIT_FAILURE);
-  }
+  mode_t old_mask;
+  old_mask = umask(0);
+  error_check("I/O Operation: Open File Failed",
+              (f = open("log.txt", O_CREAT | O_RDWR | O_APPEND, 0666)));
+  buffer[strlen(buffer)] = '\n';
+  write(f, buffer, strlen(buffer));
+  close(f);
+  umask(old_mask);
 }
 
-void serve(const char *port)
+void serve(const char *port, const char *file)
 {
-  int parentfd, childfd, clientlen;
-  struct sockaddr_in serveraddr, clientaddr;
-  char buf[BUFSIZE];
-
-  int optval = 1; /* flag value for setsockopt */
-  int notdone = 1;
-
-  FS readfds;
-
-  /* 
-   * socket: create the parent socket 
+  /*
+   * f: File Descriptor
+   * itr: Iterating Variable
+   * opt: Flag Value for setsockopt
+   * sendall: Send All Trigger
+   * parentfd: Server Socket
+   * maxsocketfd: Max Socket
+   * itrsocketfd: Iterating Socket
+   * currentfd: Current Client Socket
+   * clientsocketlen: Byte Size of Client's Address
+   * clientsfd: Array of Client Sockets
+   * serveraddr: Server Addr
+   * clientaddr: Client Addr
+   * greet: Greeting Message On First Connection
+   * readfds: Socket Set
+   * buffer: Server Byte Buffer
    */
-  error_check("ERROR opening socket",
+  int f, itr, opt, sendall;
+  int parentfd, maxsocketfd, itrsocketfd, currentfd;
+  int clientsocketlen;
+  int clientsfd[MAX_CLIENT_SIZE];
+  struct sockaddr_in serveraddr, clientaddr;
+  const char greet[100] = "A connection is maded successfully.\0";
+  char *buffer[MAX_BUFFER_SIZE];
+  fd_set readfds;
+
+  /*
+   * Initialize the array of client sockets.
+   */
+  for (itr = 0; itr < MAX_CLIENT_SIZE; itr++)
+  {
+    clientsfd[itr] = 0;
+  }
+
+  /*
+   * Initialize the server socket.
+   */
+  error_check("Server Socket: Creation Failed\n",
               (parentfd = socket(AF_INET, SOCK_STREAM, 0)));
 
-  /* 
-   * setsockopt: Handy debugging trick that lets 
-   * us rerun the server immediately after we kill it; 
-   * otherwise we have to wait about 20 secs. 
-   * Eliminates "ERROR on binding: Address already in use" error. 
+  /*
+   * Set server socket to accept multiple connections.
    */
-  setsockopt(parentfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int));
+  error_check("Server Socket: Set Socket Option Failed\n",
+              setsockopt(parentfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&opt, sizeof(opt)));
 
   /*
-   * build the server's Internet address
+   * Create the server's internet address.
+   * Set the internet address to IPV4.
+   * Set the IP address.
+   * Set the listening port to a specified port.
    */
   bzero((char *)&serveraddr, sizeof(serveraddr));
-
-  /* 
-   * -----------
-   * server addr
-   * -----------
-   * 
-   * this is an Internet address 
-   * let the system figure out our IP address 
-   * this is the port we will listen on 
-   * 
-   */
   serveraddr.sin_family = AF_INET;
   serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  serveraddr.sin_port = htons((unsigned short)atoi(port));
-
-  /* 
-   * bind parent socket to port
-   */
-  error_check("ERROR on binding",
-              bind(parentfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)));
+  serveraddr.sin_port = htons(port);
 
   /*
-   * listening to parent socket 
-   * allow MAX_QUEUE_SIZE requests to queue
+   * Bind the server socket to the specified port.
+   * Set server to listen up to MAX_CLIENT_SIZE
    */
-  error_check("ERROR on listen",
-              listen(parentfd, MAX_QUEUE_SIZE));
-
-  /* 
-   * initialize some things for the main loop
-   */
-  clientlen = sizeof(clientaddr);
-  printf("server> ");
+  error_check("Server Socket: Binding Socket Failed\n",
+              bind(parentfd, (const struct sockaddr *)&serveraddr, sizeof(serveraddr)));
+  error_check("Server Socket: Set Listen Failed\n",
+              listen(parentfd, MAX_CLIENT_SIZE));
+  printf("Server: Listening on Port %s\n", port);
   fflush(stdout);
 
-  /* 
-   * main loop: wait for connection request or stdin command.
-   *
-   * If connection request -> then echo input line and close connection. 
-   * If command -> process command.
+  /*
+   * Set the client socket address length for looping.
+   * Set sendall to false.
    */
-  while (notdone)
-  {
+  clientsocketlen = sizeof(clientaddr);
+  sendall = 0;
 
-    /* 
-     * initialize the fd set
-     * add socket fd
-     * add stdin fd (0)
-     * 
-     * select: check stdin or received connection request
-     * 
+  while (1)
+  {
+    /*
+     * Zero out the socket set.
+     * Add server socket to the socket set.
+     * Copy the file descriptor from server socket to max socket.
      */
     FD_ZERO(&readfds);
     FD_SET(parentfd, &readfds);
-    FD_SET(0, &readfds);
-    error_check("ERROR in select",
-                select(parentfd + 1, &readfds, 0, 0, 0));
+    bzero((char *)&clientaddr, sizeof(clientaddr));
+    currentfd = 0;
+    maxsocketfd = parentfd;
 
-    /* 
-     * commands from stdin:
-     * "c<nl>"  print the number of connection requests
-     * "q<nl>"  quit the server 
-     * if the user has entered a command, process it 
+    /*
+     * Iterate through the array of client sockets:
+     *  - Add socket to the socket set if it is valid.
+     *  - Copy socket file descriptor to max socket file descriptor if
+     *    the file descriptor is greater than the max socket file
+     *    descriptor. 
      */
-    if (FD_ISSET(0, &readfds))
+    for (itr = 0; itr < MAX_CLIENT_SIZE; itr++)
     {
-      fgets(buf, BUFSIZE, stdin);
-      switch (buf[0])
+      itrsocketfd = clientsfd[itr];
+      if (itrsocketfd > 0)
       {
-      case 'q':
-        notdone = 0;
-        break;
-      default:
-        printf("ERROR: Unknown Command\nserver> ");
-        fflush(stdout);
+        FD_SET(itrsocketfd, &readfds);
+      }
+      if (itrsocketfd > maxsocketfd)
+      {
+        maxsocketfd = itrsocketfd;
       }
     }
 
-    /* 
-     * if a connection request has arrived, process it 
+    /*
+     * Wait for a connection request.
+     */
+    error_check("Server: Error in Select\n",
+                select(maxsocketfd + 1, &readfds, 0, 0, 0));
+
+    /*
+     * If there is an incoming connection:
+     *  - Accept the incoming connection.
+     *  - Print information about the new connection.
+     *  - Greet the new client.
+     *  - Read from client to make sure "quit" is not emitted.
+     *  - Add the client to the array of client sockets.
      */
     if (FD_ISSET(parentfd, &readfds))
     {
-      /* 
-       * accept: wait for a connection request 
-       */
-      error_check("ERROR on accept",
-                  (childfd = accept(parentfd, (struct sockaddr *)&clientaddr, &clientlen)));
+      error_check("Server: Accepting Client Failed\n",
+                  (currentfd = accept(parentfd, (struct sockaddr *)&clientaddr,
+                                      (socklen_t *)&clientsocketlen)));
 
-      /* 
-       * read: read input string from the client
-       */
-      bzero(buf, BUFSIZE);
-      error_check("ERROR reading from socket",
-                  read(childfd, buf, BUFSIZE));
+      printf("New connection, socket fd is %d, IP is: %s, port: %d\n ",
+             currentfd, inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
-      printf("Received a connection request:\n%s\nserver> ", buf);
-      fflush(stdout);
+      error_check("Server: Send Greeting Failed\n",
+                  send(currentfd, greet, strlen(greet), 0));
 
-      /* 
-       * write: echo the input string back to the client 
-       */
-      bzero(buf, BUFSIZE);
-      error_check("ERROR writing to socket",
-                  write(childfd, buf, strlen(buf)));
+      bzero(buffer, MAX_BUFFER_SIZE);
+      if (read(currentfd, buffer, MAX_BUFFER_SIZE))
+      {
+        if (!strcmp(buffer, "quit"))
+        {
+          close(currentfd);
+          printf("Socket %d has disconnected.\n", currentfd);
+          fflush(stdout);
+        }
+        else
+        {
+          log(f, buffer);
+          sendall = 1;
 
-      close(childfd);
+          for (itr = 0; itr < MAX_CLIENT_SIZE; itr++)
+          {
+            itrsocketfd = clientsfd[itr];
+            if (!itrsocketfd)
+            {
+              clientsfd[itr] = currentfd;
+              printf("Added socket %d to the array of client sockets at %d\n", currentfd, itr);
+              break;
+            }
+          }
+        }
+      }
     }
 
-    for (int fd = 0; fd < MAX_QUEUE_SIZE; fd++)
-      if (FD_ISSET(fd, &readfds))
+    /*
+     * Perform I/O operations on all current stored sockets:
+     *  - If a socket in the set is hot, read the socket:
+     *    - If "quit" is emitted, set buffer to "A socket has disconnected.\n\0".
+     *    - Else, log the emitted message and set the server to send the message to all.
+     */
+    for (itr = 0; itr < MAX_CLIENT_SIZE; itr++)
+    {
+      itrsocketfd = clientsfd[itr];
+      if (FD_ISSET(itrsocketfd, &readfds))
       {
-        bzero(buf, BUFSIZE);
-        error_check("ERROR writing to socket",
-                    write(childfd, buf, strlen(buf)));
+        bzero(buffer, MAX_BUFFER_SIZE);
+        if (read(itrsocketfd, buffer, MAX_BUFFER_SIZE))
+        {
+          if (!strcmp(buffer, "quit"))
+          {
+            close(itrsocketfd);
+            printf("Socket %d has disconnected.\n", clientsfd[itr]);
+            fflush(stdout);
+            sendall = 1;
+            bzero(buffer, MAX_BUFFER_SIZE);
+            strcpy(buffer, "A socket has disconnected.\n\0");
+            clientsfd[itr] = 0;
+            break;
+          }
+          else
+          {
+            log(f, buffer);
+            sendall = 1;
+            break;
+          }
+        }
       }
-  }
+    }
 
-  /* clean up */
-  printf("Terminating server.\n");
-  close(parentfd);
-  exit(EXIT_SUCCESS);
+    /*
+     *  If send all is set to true,
+     *  the server send the last accepted message to all clients.
+     */
+    if (sendall)
+    {
+      for (itr = 0; itr < MAX_CLIENT_SIZE; itr++)
+      {
+        itrsocketfd = clientsfd[itr];
+        if (itrsocketfd)
+        {
+          error_check("Server: Checking In Failed\n",
+                      send(itrsocketfd, buffer, strlen(buffer), 0));
+        }
+      }
+    }
+
+    /*
+     * Reset send all flag to false.
+     */
+    sendall = 0;
+  }
 }
