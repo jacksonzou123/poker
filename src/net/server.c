@@ -12,7 +12,7 @@ void log(int f, char *buffer)
   umask(old_mask);
 }
 
-void serve(const char *port, const char *file)
+void serve(const char *port)
 {
   /*
    * f: File Descriptor

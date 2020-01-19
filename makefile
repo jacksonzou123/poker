@@ -4,7 +4,7 @@ CFLAGS = -Wall
 SOURCEDIR = src
 BUILDDIR = bin
 
-EXECUTABLE = MultiplayerPoker
+EXECUTABLE = Poker
 SOURCES = $(wildcard $(SOURCEDIR)/*.c) $(wildcard $(SOURCEDIR)/*/*.c)
 OBJECTS := $(SOURCES:%.c=$(BUILDDIR)/%.o)
 

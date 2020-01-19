@@ -1,4 +1,5 @@
 #ifndef NET_H
+#define NET_H
 
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +26,7 @@ void error_check(const char *error_msg, const int error_code);
 void log(int f, char *buffer);
 
 // Network Functions
-void serve(const char *port, const char *file);
+void serve(const char *port);
 void start_client(const char *hostname, const char *port);
 
 #endif
