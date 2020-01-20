@@ -46,6 +46,6 @@ int is_straight_flush(BOARD *, HAND *);
 int is_royal_flush(BOARD *, HAND *);
 
 
-int checkmultiple(BOARD *, HAND *);
+int checkmultiple(BOARD * board, HAND * hand);
 int checkStraightFlush(BOARD * board, HAND * hand);
 #endif

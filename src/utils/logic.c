@@ -1,17 +1,17 @@
 #include "logic.h"
 
-int best_hand(BOARD * board, HAND * hand) {
+int best_hand(BOARD *board, HAND *hand) {
   int highest = HIGHCARD;
 
-  int temp = checkmultiple(BOARD * board, HAND * hand);
+  int temp = checkmultiple(board, hand);
   if (temp > highest) {
     highest = temp;
   }
 
-
+  return highest;
 }
 
-int checkmultiple(BOARD * board, HAND * hand) {
+int checkmultiple(BOARD *board, HAND *hand) {
   int counter[13] = {0};
 
   int i;
@@ -58,4 +58,5 @@ int checkStraightFlush(BOARD * board, HAND * hand) {
   int straight = 0;
   int flush = 0;
 
+  return HIGHCARD;
 }
