@@ -66,6 +66,8 @@ void start_client(char *hostname, int port)
               read(socketfd, buffer, MAX_BUFFER_SIZE));
   printf("Initial Server Response: %s\n", buffer);
 
+  printf("\e[1;1H\e[2J");
+
   /*
    * Set to always listen from server.
    * Write to server on input.
@@ -79,8 +81,6 @@ void start_client(char *hostname, int port)
       fflush(stdout);
       exit(EXIT_SUCCESS);
     }
-
-    printf("\e[1;1H\e[2J");
 
     bzero(buffer, MAX_BUFFER_SIZE);
     error_check("Client Socket: Server Read Failed\n",

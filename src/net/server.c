@@ -23,6 +23,8 @@ void serve(int port, char *logname)
   /*
    * Game Setup
    */
+  int aceno;
+  int n;
   int y, z;
   int game_setup = 1;
   int total = 0;
@@ -339,12 +341,39 @@ void serve(int port, char *logname)
         players_cards[itr][cards_out - 1] = full_deck[deck_pos++];
       }
       int i2;
+      aceno = 0;
       for (itr = 0; itr < num_player; itr++)
       {
         int sum = 0;
         for (i2 = 0; i2 < cards_out; i2++)
         {
-          sum += players_cards[itr][i2]->num;
+          if (players_cards[itr][i2]->num > 9)
+          {
+            if (players_cards[itr][i2]->num == 13)
+            {
+              aceno = 1;
+              sum += 11;
+            }
+            else
+            {
+              sum += 10;
+            }
+          }
+          else if (players_cards[itr][i2]->num == 1)
+          {
+            sum += 2;
+          }
+          else
+          {
+            sum += players_cards[itr][i2]->num + 1;
+          }
+          if (sum > 21)
+          {
+            if (aceno)
+            {
+              sum -= 10;
+            }
+          }
         }
         if (sum == 21)
         {
@@ -368,7 +397,6 @@ void serve(int port, char *logname)
                 close(itrsocketfd);
               }
             }
-            int n;
             for (n = 0; n < num_player; n++)
             {
               if ((n > 0) && (clientsfd[n - 1] != 0))
@@ -376,8 +404,6 @@ void serve(int port, char *logname)
                 bzero(name_buf, 100);
                 sprintf(name_buf, "Player %s: ", players[n]);
                 strcat(buffer, name_buf);
-                players_cards[n] = realloc(players_cards[n], sizeof(CARD *) * cards_out);
-                players_cards[n][cards_out - 1] = full_deck[deck_pos++];
                 card_buffs = stringify_cards(players_cards[n], cards_out);
                 strcat(buffer, card_buffs);
                 strcat(buffer, "\n");
@@ -388,8 +414,6 @@ void serve(int port, char *logname)
                 bzero(name_buf, 100);
                 sprintf(name_buf, "Player %s: ", players[n]);
                 strcat(buffer, name_buf);
-                players_cards[n] = realloc(players_cards[n], sizeof(CARD *) * cards_out);
-                players_cards[n][cards_out - 1] = full_deck[deck_pos++];
                 card_buffs = stringify_cards(players_cards[n], cards_out);
                 strcat(buffer, card_buffs);
                 strcat(buffer, "\n");
@@ -428,7 +452,57 @@ void serve(int port, char *logname)
             char q_buf[10] = "quit";
             error_check("Server: Checking In Failed\n",
                         send(clientsfd[itr - 1], q_buf, 10, 0));
+            close(clientsfd[itr - 1]);
+            clientsfd[itr - 1] = 0;
             total--;
+            if (total <= 0)
+            {
+              for (n = 0; n < num_player; n++)
+              {
+                if ((n > 0) && (clientsfd[n - 1] != 0))
+                {
+                  bzero(name_buf, 100);
+                  sprintf(name_buf, "Player %s: ", players[n]);
+                  strcat(buffer, name_buf);
+                  card_buffs = stringify_cards(players_cards[n], cards_out);
+                  strcat(buffer, card_buffs);
+                  strcat(buffer, "\n");
+                  free(card_buffs);
+                }
+                else if (n == 0)
+                {
+                  bzero(name_buf, 100);
+                  sprintf(name_buf, "Player %s: ", players[n]);
+                  strcat(buffer, name_buf);
+                  card_buffs = stringify_cards(players_cards[n], cards_out);
+                  strcat(buffer, card_buffs);
+                  strcat(buffer, "\n");
+                  free(card_buffs);
+                }
+              }
+              printf("%s\n", buffer);
+              printf("No player left. You have won.\n");
+              fflush(stdout);
+              for (y = 0; y < 52; y++)
+              {
+                free(full_deck[y]);
+              }
+              free(full_deck);
+              for (y = 0; y < num_player; y++)
+              {
+                free(players[y]);
+              }
+              free(players);
+              for (y = 0; y < num_player; y++)
+              {
+                for (z = 0; z < cards_out; z++)
+                {
+                  free(players_cards[y][z]);
+                }
+                free(players_cards[y]);
+              }
+              exit(EXIT_SUCCESS);
+            }
           }
           else
           {
@@ -444,7 +518,6 @@ void serve(int port, char *logname)
                 close(itrsocketfd);
               }
             }
-            int n;
             for (n = 0; n < num_player; n++)
             {
               if ((n > 0) && (clientsfd[n - 1] != 0))
@@ -452,8 +525,6 @@ void serve(int port, char *logname)
                 bzero(name_buf, 100);
                 sprintf(name_buf, "Player %s: ", players[n]);
                 strcat(buffer, name_buf);
-                players_cards[n] = realloc(players_cards[n], sizeof(CARD *) * cards_out);
-                players_cards[n][cards_out - 1] = full_deck[deck_pos++];
                 card_buffs = stringify_cards(players_cards[n], cards_out);
                 strcat(buffer, card_buffs);
                 strcat(buffer, "\n");
@@ -464,8 +535,6 @@ void serve(int port, char *logname)
                 bzero(name_buf, 100);
                 sprintf(name_buf, "Player %s: ", players[n]);
                 strcat(buffer, name_buf);
-                players_cards[n] = realloc(players_cards[n], sizeof(CARD *) * cards_out);
-                players_cards[n][cards_out - 1] = full_deck[deck_pos++];
                 card_buffs = stringify_cards(players_cards[n], cards_out);
                 strcat(buffer, card_buffs);
                 strcat(buffer, "\n");
@@ -504,8 +573,6 @@ void serve(int port, char *logname)
           bzero(name_buf, 100);
           sprintf(name_buf, "Player %s: ", players[itr]);
           strcat(buffer, name_buf);
-          players_cards[itr] = realloc(players_cards[itr], sizeof(CARD *) * cards_out);
-          players_cards[itr][cards_out - 1] = full_deck[deck_pos++];
           card_buffs = stringify_cards(players_cards[itr], cards_out);
           strcat(buffer, card_buffs);
           strcat(buffer, "\n");
@@ -516,8 +583,6 @@ void serve(int port, char *logname)
           bzero(name_buf, 100);
           sprintf(name_buf, "Player %s: ", players[itr]);
           strcat(buffer, name_buf);
-          players_cards[itr] = realloc(players_cards[itr], sizeof(CARD *) * cards_out);
-          players_cards[itr][cards_out - 1] = full_deck[deck_pos++];
           card_buffs = stringify_cards(players_cards[itr], cards_out);
           strcat(buffer, card_buffs);
           strcat(buffer, "\n");
