@@ -12,7 +12,7 @@
 #define FOUR_PLAYER_DECK_SIZE 13
 
 /*
- * Card Interface
+ * Card Type
  * 
  * @suit: Diamond, Club, Heart, or Spade
  * @num: From 1 to 13 Where 1 is Ace and 13 is King
@@ -25,7 +25,10 @@ typedef struct card
 
 // Card Utility Functions
 char *num_to_suit(int card);
+int card_to_num(CARD *card);
 void print_card(CARD *input);
+
+int compare_card(CARD *, CARD *);
 
 /*
  * @param player_num
@@ -33,10 +36,10 @@ void print_card(CARD *input);
  * 
  * Return Card Pointer Array
  */
-CARD **get_cards(int, int);
+CARD **get_cards(int);
 
 /*
- * Hand Interface
+ * Hand Type
  * 
  * @player: Player's Name
  * @card_a: Player's First Card
@@ -52,7 +55,7 @@ HAND *make_hand(char *, CARD *, CARD *);
 HAND **dist_cards(char **, int, CARD **, int);
 
 /*
- * Board Interface
+ * Board Type
  * 
  * Five Cards of the House
  * 
