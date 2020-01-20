@@ -1,6 +1,6 @@
 #include "net.h"
 
-void serve(const char *port, const char *logname)
+void serve(int port, char *logname)
 {
   /*
    * Prompt the user for their player name.
@@ -18,10 +18,12 @@ void serve(const char *port, const char *logname)
   int cards_out = 0;
   CARD **full_deck = get_cards();
   CARD ***players_cards = malloc(sizeof(CARD **));
+  char *card_buffs;
 
   /*
    * Game Setup
    */
+  int y, z;
   int game_setup = 1;
   int total = 0;
   int conn = 0;
@@ -96,7 +98,7 @@ void serve(const char *port, const char *logname)
               bind(parentfd, (const struct sockaddr *)&serveraddr, sizeof(serveraddr)));
   error_check("Server Socket: Set Listen Failed\n",
               listen(parentfd, MAX_CLIENT_SIZE));
-  printf("Server: Listening on Port %s\n", port);
+  printf("Server: Listening on Port %d\n", port);
   fflush(stdout);
 
   /*
@@ -160,12 +162,30 @@ void serve(const char *port, const char *logname)
       {
         printf("No other players are connected. You won!\n");
         fflush(stdout);
+        for (y = 0; y < 52; y++)
+        {
+          free(full_deck[y]);
+        }
+        free(full_deck);
+        for (y = 0; y < num_player; y++)
+        {
+          free(players[y]);
+        }
+        free(players);
+        for (y = 0; y < num_player; y++)
+        {
+          for (z = 0; z < cards_out; z++)
+          {
+            free(players_cards[y][z]);
+          }
+          free(players_cards[y]);
+        }
         exit(EXIT_FAILURE);
       }
     }
     else
     {
-      printf("Server: ");
+      printf("Type [finish setup] to start the game.\nServer: ");
       fflush(stdout);
     }
 
@@ -199,6 +219,24 @@ void serve(const char *port, const char *logname)
         {
           printf("%s\n", buffer);
           fflush(stdout);
+          for (y = 0; y < 52; y++)
+          {
+            free(full_deck[y]);
+          }
+          free(full_deck);
+          for (y = 0; y < num_player; y++)
+          {
+            free(players[y]);
+          }
+          free(players);
+          for (y = 0; y < num_player; y++)
+          {
+            for (z = 0; z < cards_out; z++)
+            {
+              free(players_cards[y][z]);
+            }
+            free(players_cards[y]);
+          }
           exit(EXIT_SUCCESS);
         }
       }
@@ -272,6 +310,24 @@ void serve(const char *port, const char *logname)
       {
         printf("No player left. You have won.\n");
         fflush(stdout);
+        for (y = 0; y < 52; y++)
+        {
+          free(full_deck[y]);
+        }
+        free(full_deck);
+        for (y = 0; y < num_player; y++)
+        {
+          free(players[y]);
+        }
+        free(players);
+        for (y = 0; y < num_player; y++)
+        {
+          for (z = 0; z < cards_out; z++)
+          {
+            free(players_cards[y][z]);
+          }
+          free(players_cards[y]);
+        }
         exit(EXIT_SUCCESS);
       }
       char name_buf[100];
@@ -322,8 +378,10 @@ void serve(const char *port, const char *logname)
                 strcat(buffer, name_buf);
                 players_cards[n] = realloc(players_cards[n], sizeof(CARD *) * cards_out);
                 players_cards[n][cards_out - 1] = full_deck[deck_pos++];
-                strcat(buffer, stringify_cards(players_cards[n], cards_out));
+                card_buffs = stringify_cards(players_cards[n], cards_out);
+                strcat(buffer, card_buffs);
                 strcat(buffer, "\n");
+                free(card_buffs);
               }
               else if (n == 0)
               {
@@ -332,12 +390,32 @@ void serve(const char *port, const char *logname)
                 strcat(buffer, name_buf);
                 players_cards[n] = realloc(players_cards[n], sizeof(CARD *) * cards_out);
                 players_cards[n][cards_out - 1] = full_deck[deck_pos++];
-                strcat(buffer, stringify_cards(players_cards[n], cards_out));
+                card_buffs = stringify_cards(players_cards[n], cards_out);
+                strcat(buffer, card_buffs);
                 strcat(buffer, "\n");
+                free(card_buffs);
               }
             }
             printf("You have won!\n");
             fflush(stdout);
+            for (y = 0; y < 52; y++)
+            {
+              free(full_deck[y]);
+            }
+            free(full_deck);
+            for (y = 0; y < num_player; y++)
+            {
+              free(players[y]);
+            }
+            free(players);
+            for (y = 0; y < num_player; y++)
+            {
+              for (z = 0; z < cards_out; z++)
+              {
+                free(players_cards[y][z]);
+              }
+              free(players_cards[y]);
+            }
             exit(EXIT_SUCCESS);
           }
         }
@@ -376,8 +454,10 @@ void serve(const char *port, const char *logname)
                 strcat(buffer, name_buf);
                 players_cards[n] = realloc(players_cards[n], sizeof(CARD *) * cards_out);
                 players_cards[n][cards_out - 1] = full_deck[deck_pos++];
-                strcat(buffer, stringify_cards(players_cards[n], cards_out));
+                card_buffs = stringify_cards(players_cards[n], cards_out);
+                strcat(buffer, card_buffs);
                 strcat(buffer, "\n");
+                free(card_buffs);
               }
               else if (n == 0)
               {
@@ -386,13 +466,33 @@ void serve(const char *port, const char *logname)
                 strcat(buffer, name_buf);
                 players_cards[n] = realloc(players_cards[n], sizeof(CARD *) * cards_out);
                 players_cards[n][cards_out - 1] = full_deck[deck_pos++];
-                strcat(buffer, stringify_cards(players_cards[n], cards_out));
+                card_buffs = stringify_cards(players_cards[n], cards_out);
+                strcat(buffer, card_buffs);
                 strcat(buffer, "\n");
+                free(card_buffs);
               }
             }
             printf("%s\n", buffer);
             printf("You have lost!\n");
             fflush(stdout);
+            for (y = 0; y < 52; y++)
+            {
+              free(full_deck[y]);
+            }
+            free(full_deck);
+            for (y = 0; y < num_player; y++)
+            {
+              free(players[y]);
+            }
+            free(players);
+            for (y = 0; y < num_player; y++)
+            {
+              for (z = 0; z < cards_out; z++)
+              {
+                free(players_cards[y][z]);
+              }
+              free(players_cards[y]);
+            }
             exit(EXIT_SUCCESS);
           }
         }
@@ -406,8 +506,10 @@ void serve(const char *port, const char *logname)
           strcat(buffer, name_buf);
           players_cards[itr] = realloc(players_cards[itr], sizeof(CARD *) * cards_out);
           players_cards[itr][cards_out - 1] = full_deck[deck_pos++];
-          strcat(buffer, stringify_cards(players_cards[itr], cards_out));
+          card_buffs = stringify_cards(players_cards[itr], cards_out);
+          strcat(buffer, card_buffs);
           strcat(buffer, "\n");
+          free(card_buffs);
         }
         else if (itr == 0)
         {
@@ -416,8 +518,10 @@ void serve(const char *port, const char *logname)
           strcat(buffer, name_buf);
           players_cards[itr] = realloc(players_cards[itr], sizeof(CARD *) * cards_out);
           players_cards[itr][cards_out - 1] = full_deck[deck_pos++];
-          strcat(buffer, stringify_cards(players_cards[itr], cards_out));
+          card_buffs = stringify_cards(players_cards[itr], cards_out);
+          strcat(buffer, card_buffs);
           strcat(buffer, "\n");
+          free(card_buffs);
         }
       }
       printf("%s", buffer);
@@ -468,6 +572,24 @@ void serve(const char *port, const char *logname)
                 {
                   printf("No players beside house left.\n");
                   fflush(stdout);
+                  for (y = 0; y < 52; y++)
+                  {
+                    free(full_deck[y]);
+                  }
+                  free(full_deck);
+                  for (y = 0; y < num_player; y++)
+                  {
+                    free(players[y]);
+                  }
+                  free(players);
+                  for (y = 0; y < num_player; y++)
+                  {
+                    for (z = 0; z < cards_out; z++)
+                    {
+                      free(players_cards[y][z]);
+                    }
+                    free(players_cards[y]);
+                  }
                   exit(EXIT_SUCCESS);
                 }
               }
@@ -495,6 +617,24 @@ void serve(const char *port, const char *logname)
         }
         printf("You have quit the game.\n");
         fflush(stdout);
+        for (y = 0; y < 52; y++)
+        {
+          free(full_deck[y]);
+        }
+        free(full_deck);
+        for (y = 0; y < num_player; y++)
+        {
+          free(players[y]);
+        }
+        free(players);
+        for (y = 0; y < num_player; y++)
+        {
+          for (z = 0; z < cards_out; z++)
+          {
+            free(players_cards[y][z]);
+          }
+          free(players_cards[y]);
+        }
         exit(EXIT_SUCCESS);
       }
     }

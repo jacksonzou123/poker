@@ -27,3 +27,4 @@ $(BUILDDIR)/%.o: %.c
 clean:
 	rm -rf $(BUILDDIR)
 	rm -f $(EXECUTABLE)
+	rm log.txt

@@ -8,25 +8,24 @@ int main(int argc, char const *argv[])
 {
   pid_t cpid;
   int child_status;
-  char buffer[10];
+  int portno;
 
-  printf("Welcome to Multiplayer Poker!\n");
-  printf("-----------------------------\n\n");
-  printf("Options\n");
-  printf("* serve\n");
-  printf("* client\n");
-  printf("\nStart Option: ");
-
-  fgets(buffer, 10, stdin);
-  buffer[strlen(buffer) - 1] = 0;
-
-  if (!strcmp(buffer, "serve"))
+  if (argv < 2)
   {
-    serve("8000", "log.txt");
+    printf("Usage: <server|client> <port> <?hostname>\n");
   }
-  else if (!strcmp(buffer, "client"))
+  else
   {
-    start_client("127.0.0.1", "8000");
+    sscanf(argv[2], "%d", &portno);
+    if (!strcmp(argv[1], "server"))
+    {
+      serve(portno, "log.txt");
+    }
+    else if (!strcmp(argv[1], "client"))
+    {
+
+      start_client(argv[3], portno);
+    }
   }
   return 0;
 }

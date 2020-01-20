@@ -1,6 +1,6 @@
 #include "net.h"
 
-void start_client(const char *hostname, const char *port)
+void start_client(char *hostname, int port)
 {
   /*
    * Prompt for player name.
@@ -16,14 +16,13 @@ void start_client(const char *hostname, const char *port)
    * server: Host Information
    * buffer: Message Buffer
    */
+  int y;
   int itr;
   int sent;
   int socketfd;
   struct sockaddr_in serveraddr;
   struct hostent *server;
   int num_cards = 1;
-  CARD *card = malloc(sizeof(CARD));
-  CARD **all_cards = malloc(sizeof(CARD *) * num_cards);
   char buffer[MAX_BUFFER_SIZE];
 
   /*
@@ -47,7 +46,7 @@ void start_client(const char *hostname, const char *port)
    */
   bzero((char *)&serveraddr, sizeof(serveraddr));
   serveraddr.sin_family = AF_INET;
-  bcopy((char *)server->h_addr, (char *)&serveraddr.sin_addr.s_addr, server->h_length);
+  bcopy((char *)server->h_addr_list[0], (char *)&serveraddr.sin_addr.s_addr, server->h_length);
   serveraddr.sin_port = htons(port);
 
   /*

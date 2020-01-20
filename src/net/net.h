@@ -23,7 +23,7 @@ void error_check(const char *error_msg, int error_code);
 void log_game(int f, const char *filename, char *buffer);
 
 // Network Functions
-void serve(const char *port, const char *logname);
-void start_client(const char *hostname, const char *port);
+void serve(int port, char *logname);
+void start_client(char *hostname, int port);
 
 #endif
