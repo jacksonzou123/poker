@@ -19,6 +19,12 @@ int checkmultiple(BOARD *board, HAND *hand) {
   int three = 0;
 
   counter[board->a->num-1]++;
+  counter[board->b->num-1]++;
+  counter[board->c->num-1]++;
+  counter[board->d->num-1]++;
+  counter[board->e->num-1]++;
+  counter[hand->card_a->num-1]++;
+  counter[hand->card_b->num-1]++;
 
   //count doubles, triples, quads
   for (i = 0; i < 13; i++) {
