@@ -1,23 +1,29 @@
 #ifndef NET_H
+#define NET_H
 
-#include "../utils/card.h"
+#include "../poker/poker.h"
 
-#include <stdio.h>
+#include <errno.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <netdb.h>
+
+#include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/time.h>
 
-#define BUFSIZE 2048
-#define MAX_QUEUE_SIZE 4
+#define MAX_CLIENT_SIZE 12
+#define MAX_BUFFER_SIZE 2048
 
-typedef fd_set FS;
+// Utilities Functions
+void error_check(const char *error_msg, int error_code);
 
-void error_check(char *msg, int code);
-void serve(const char *port);
+// Server Functions
+void log_game(int f, const char *filename, char *buffer);
+
+// Network Functions
+void serve(const char *port, const char *logname);
+void start_client(const char *hostname, const char *port);
 
 #endif

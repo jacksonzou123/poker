@@ -1,306 +1,130 @@
-#include "card.h"
+#include "util.h"
 
-// void build_deck(CARD *deck[])
-// {
-//   int i, j, k = 0;
-//
-//   char suits[4] = "dchs";
-//
-//   for (i = 0; i < 4; i++)
-//   {
-//     for (j = 0; j < 13; j++)
-//     {
-//       CARD *card = malloc(sizeof(CARD));
-//       card->suit = suits[i];
-//       card->num = j + 1;
-//       deck[k++] = card;
-//     }
-//   }
-// }
-//
-// void swap(CARD *a, CARD *b)
-// {
-//   CARD temp = *a;
-//   *a = *b;
-//   *b = temp;
-// }
-//
-// void shuffle(CARD *deck[], int n)
-// {
-//   srand(time(0));
-//
-//   for (int i = 0; i < n; i++)
-//   {
-//     int r = i + (rand() % (52 - i));
-//     swap(deck[i], deck[r]);
-//   }
-// }
-
-void getCards(DECK * deck) {
-  char * suits = "dchs";
-  int i;
-  srand(time(0));
-  int list[4][13] = {0};
-  for (i = 0; i < 8; i++) {
-    int suit = rand() % 4;
-    int num = rand() % 13;
-    if (list[suit][num] == 0) {
-      list[suit][num] = 1;
-      //printf("%d, %d\n", i/2, i%2);
-      deck->hand[i / 2].hand[i % 2].suit = suits[suit];
-      deck->hand[i / 2].hand[i % 2].num = num+1;
-      //printCard(deck->hand[i/2].hand[i%2]);
-    }
-    else {
-      i--;
-    }
-  }
-  for (i = 0; i < 5; i++) {
-    int suit = rand() % 4;
-    int num = rand() % 13;
-    if (list[suit][num] == 0) {
-      list[suit][num] = 1;
-      deck->house[i].suit = suits[suit];
-      deck->house[i].num = num+1;
-      //printCard(deck->house[i]);
-    }
-    else {
-      i--;
-    }
-  }
-
-}
-
-void printCard(CARD input)
+char *num_to_suit(int card)
 {
-  setlocale(LC_CTYPE, "");
-  wchar_t suit;
-  if (input.suit == 'd') {
-    suit = 0x2666;
+  switch (card / 13)
+  {
+  case 0:
+    return "diamond";
+  case 1:
+    return "club";
+  case 2:
+    return "heart";
+  default:
+    return "spade";
   }
-  if (input.suit == 's') {
-    suit = 0x2660;
-  }
-  if (input.suit == 'h') {
-    suit = 0x2665;
-  }
-  if (input.suit == 'c') {
-    suit = 0x2663;
-  }
-  printf("[%lc %d]\n", suit, input.num);
 }
 
-void printDeck(DECK * deck) {
-  //printf("JEFF SUCKS\n");
-  printf("Player 0 Cards:\n");
-  printCard(deck->hand[0].hand[0]);
-  printCard(deck->hand[0].hand[1]);
-  printf("Player 1 Cards:\n");
-  printCard(deck->hand[1].hand[0]);
-  printCard(deck->hand[1].hand[1]);
-  printf("Player 2 Cards:\n");
-  printCard(deck->hand[2].hand[0]);
-  printCard(deck->hand[2].hand[1]);
-  printf("Player 3 Cards:\n");
-  printCard(deck->hand[3].hand[0]);
-  printCard(deck->hand[3].hand[1]);
-  printf("Field\n");
-  printCard(deck->house[0]);
-  printCard(deck->house[1]);
-  printCard(deck->house[2]);
-  printCard(deck->house[3]);
-  printCard(deck->house[4]);
-}
-//royal flush -> 10
-//straight flush
-//four of a kind
-//full house
-//flush
-//straight
-//triple
-//two pairs
-//pair
-//high card -> 1
+CARD **get_cards()
+{
+  srand(time(0));
 
+  CARD **empty_deck = (CARD **)malloc(52 * sizeof(CARD *));
 
-//count is the number of cards in the house being used
-char * getValue(DECK * deck, int player, int count) {
-  int value = handValue(deck, player, count);
-  if (value == 1) {
-    return "high card";
+  int cards[FULL_DECK_SIZE];
+  int card, choice;
+  for (card = 0; card < FULL_DECK_SIZE; card++)
+  {
+    cards[card] = card + 1;
   }
-  if (value == 2) {
-    return "pair";
+
+  for (card = FULL_DECK_SIZE - 1; card > 1; card--)
+  {
+    choice = rand() % card;
+
+    int temp = cards[card];
+    cards[card] = cards[choice];
+    cards[choice] = temp;
   }
-  if (value == 3) {
-    return "two pair";
+
+  for (card = 0; card < 52; card++)
+  {
+    empty_deck[card] = malloc(sizeof(CARD));
+    char *suit_num = num_to_suit(cards[card]);
+    strncpy(empty_deck[card]->suit, suit_num, 10);
+    empty_deck[card]->num = cards[card] % 13;
   }
-  if (value == 4) {
-    return "triple";
-  }
-  if (value == 5) {
-    return "straight";
-  }
-  if (value == 6) {
-    return "flush";
-  }
-  if (value == 7) {
-    return "full house";
-  }
-  if (value == 8) {
-    return "four of a kind";
-  }
-  if (value == 9) {
-    return "straight flush";
-  }
-  if (value == 10) {
-    return "royal flush";
-  }
-  return "dab";
+
+  return empty_deck;
 }
 
-int handValue(DECK * deck, int player, int count) {
-  CARD hand[2 + count];
-  hand[0] = deck->hand[player].hand[0];
-  hand[1] = deck->hand[player].hand[1];
+int sum_card(int count, ...)
+{
+  int i, sum = 0;
+  va_list card_nums;
 
+  va_start(card_nums, count);
+  for (i = 0; i < count; i++)
+  {
+    sum += va_arg(card_nums, int);
+  }
+  va_end(card_nums);
+
+  return sum;
+}
+
+void print_card(CARD *input)
+{
+  if (input->num < 10)
+  {
+    printf("%d of ", input->num + 1);
+  }
+  else
+  {
+    switch (input->num)
+    {
+    case 10:
+      printf("Jack of ");
+      break;
+    case 11:
+      printf("Queen of ");
+      break;
+    case 12:
+      printf("King of ");
+      break;
+    case 13:
+      printf("Ace of ");
+      break;
+    }
+  }
+  printf("%s", input->suit);
+}
+
+char *stringify_cards(CARD **deck, int n)
+{
   int i;
-  for (i = 0; i < count; i++) {
-    hand[2+i] = deck->house[i];
-  }
+  char *buffer = malloc(1024);
+  char card[25];
 
-  // for (i = 0; i < count+2; i++) {
-  //   printCard(hand[i]);
-  // }
-  if (count <= 2) {
-    return countMultiple(hand, count+2);
-  }
-  if (count >= 3) {
-    int highest = 1;
-    int check = countMultiple(hand, count+2);
-    if (check > highest) {
-      highest = check;
+  for (i = 0; i < n; i++)
+  {
+    bzero(card, 25);
+
+    if (deck[i]->num < 10)
+    {
+      sprintf(card, "%d of %s | ", deck[i]->num + 1, deck[i]->suit);
     }
-    check = checkStraightFlush(hand, count+2);
-    if (check > highest) {
-      highest = check;
-    }
-    return highest;
-  }
-  return 0;
-}
-
-int countMultiple(CARD hand[], int numCards) {
-  int counter[13] = {0};
-  int i;
-
-  int two = 0;
-  int three = 0;
-
-  for (i = 0; i < numCards; i++) {
-    counter[hand[i].num-1]++;
-  }
-
-  //count doubles, triples, quads
-  for (i = 0; i < 13; i++) {
-    if (counter[i] == 2) {
-      two++;
-    }
-    if (counter[i] == 3) {
-      three++;
-    }
-    if (counter[i] == 4) {
-      return 8;
-    }
-  }
-
-  if (three == 1) {
-    if (two > 0) {
-      //full house
-      return 7;
-    }
-    //triples
-    return 4;
-  }
-  if (two >= 2) {
-    //two pair
-    return 3;
-  }
-  if (two == 1) {
-    //pair
-    return 2;
-  }
-  //nothing
-  return 1;
-}
-
-int checkStraightFlush(CARD hand[], int numCards) {
-  int scheck[13] = {0};
-  int fcheck[4] = {0}; //d-0 c-1 h-2 s-3
-
-  int straight = 0;
-  int flush = 0;
-
-  int i;
-  for (i = 0; i < numCards; i++) {
-    scheck[hand[i].num-1]++;
-    if (hand[i].suit == 'd') {
-      fcheck[0]++;
-    }
-    if (hand[i].suit == 'c') {
-      fcheck[1]++;
-    }
-    if (hand[i].suit == 'h') {
-      fcheck[2]++;
-    }
-    if (hand[i].suit == 's') {
-      fcheck[3]++;
-    }
-  }
-
-  // for (i = 0; i < 4; i++) {
-  //   printf("%d\n", fcheck[i]);
-  // }
-
-  //look for flushes
-  for (i = 0; i < 4; i++) {
-    if (fcheck[i] >= 5) {
-      flush = 1;
-    }
-  }
-
-  int counter = 0;
-  int highest = 0;
-  for (i = 0; i <= 13; i++) {
-    if (i == 13) {
-      if (scheck[0]) {
-        if (counter >= 4) {
-          straight = 1;
-          highest = 1;
-        }
+    else
+    {
+      switch (deck[i]->num)
+      {
+      case 10:
+        sprintf(card, "Jack of %s | ", deck[i]->suit);
+        break;
+      case 11:
+        sprintf(card, "Queen of %s | ", deck[i]->suit);
+        break;
+      case 12:
+        sprintf(card, "King of %s | ", deck[i]->suit);
+        break;
+      case 13:
+        sprintf(card, "Ace of %s | ", deck[i]->suit);
+        break;
       }
     }
-    else {
-      if (scheck[i]) {
-        counter++;
-      }
-      else {
-        counter = 0;
-      }
-      if (counter >= 5) {
-        highest = i-1;
-        straight = 1;
-      }
-    }
+
+    strcat(buffer, card);
   }
 
-  if (flush) {
-    return 6;
-  }
-  if (straight) {
-    return 5;
-  }
-  return 1;
-  //look for straights
-
+  return buffer;
 }
