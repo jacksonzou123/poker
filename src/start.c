@@ -14,6 +14,10 @@ int main(int argc, char const *argv[])
   {
     printf("Usage: <server|client> <port> <?hostname>\n");
   }
+  else if (!argv[1] || !argv[2] || !argv[3])
+  {
+    printf("Usage: <server|client> <port> <?hostname>\n");
+  }
   else
   {
     sscanf(argv[2], "%d", &portno);
@@ -23,7 +27,6 @@ int main(int argc, char const *argv[])
     }
     else if (!strcmp(argv[1], "client"))
     {
-
       start_client(argv[3], portno);
     }
   }
