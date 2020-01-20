@@ -24,7 +24,7 @@ int best_hand(BOARD *, HAND *);
 /*
  * Should only be called if the
  * player's hands have no combos.
- * 
+ *
  * Evaluate all player's hands,
  * and return the player's name
  * with the highest card.
@@ -45,4 +45,7 @@ int is_four_of_a_kind(BOARD *, HAND *);
 int is_straight_flush(BOARD *, HAND *);
 int is_royal_flush(BOARD *, HAND *);
 
+
+int checkmultiple(BOARD *, HAND *);
+int checkStraightFlush(BOARD * board, HAND * hand);
 #endif
