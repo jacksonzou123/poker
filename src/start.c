@@ -6,28 +6,43 @@
 
 int main(int argc, char const *argv[])
 {
-  pid_t cpid;
   int child_status;
   int portno;
 
   if (argv < 2)
   {
-    printf("Usage: <server|client> <port> <?hostname>\n");
+    printf("Usage: <server|client> <port> <?|hostname>\n");
   }
   else if (!argv[1] || !argv[2] || !argv[3])
   {
-    printf("Usage: <server|client> <port> <?hostname>\n");
+    printf("Usage: <server|client> <port> <?|hostname>\n");
   }
   else
   {
     sscanf(argv[2], "%d", &portno);
     if (!strcmp(argv[1], "server"))
     {
-      serve(portno, "log.txt");
+      if (!(fork()))
+      {
+        serve(portno, "log.txt");
+      }
+      else
+      {
+        wait(&child_status);
+        printf("Thank you for playing.\n");
+      }
     }
     else if (!strcmp(argv[1], "client"))
     {
-      start_client(argv[3], portno);
+      if (!(fork()))
+      {
+        start_client(argv[3], portno);
+      }
+      else
+      {
+        wait(&child_status);
+        printf("Thank you for playing.\n");
+      }
     }
   }
   return 0;
