@@ -1,6 +1,6 @@
 #include "net.h"
 
-void start_client(char *hostname, int port)
+void start_client(const char *hostname, int port)
 {
   /*
    * Prompt for player name.
@@ -10,19 +10,14 @@ void start_client(char *hostname, int port)
   fgets(player, 100, stdin);
 
   /*
-   * sent: Sent Message Flag
    * socketfd: Client Socket
    * serveraddr: Server Addr
    * server: Host Information
    * buffer: Message Buffer
    */
-  int y;
-  int itr;
-  int sent;
   int socketfd;
   struct sockaddr_in serveraddr;
   struct hostent *server;
-  int num_cards = 1;
   char buffer[MAX_BUFFER_SIZE];
 
   /*
@@ -53,14 +48,13 @@ void start_client(char *hostname, int port)
    * Connect to the server.
    */
   error_check("Client Socket: Connecting Failed\n",
-              connect(socketfd, &serveraddr, sizeof(serveraddr)));
+              connect(socketfd, (const struct sockaddr *)&serveraddr, sizeof(serveraddr)));
 
   /*
    * Send initial message to server.
    */
   error_check("Client Socket: Server Write Failed\n",
               write(socketfd, player, strlen(player)));
-  sent = 1;
   bzero(buffer, MAX_BUFFER_SIZE);
   error_check("Client Socket: Server Read Failed\n",
               read(socketfd, buffer, MAX_BUFFER_SIZE));

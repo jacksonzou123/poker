@@ -1,7 +1,11 @@
 #ifndef NET_H
 #define NET_H
 
-#include "../poker/poker.h"
+#include "../utils/util.h"
+#include "../utils/player.h"
+
+#include <fcntl.h>
+#include <sys/stat.h>
 
 #include <errno.h>
 #include <unistd.h>
@@ -24,6 +28,6 @@ void log_game(int f, const char *filename, char *buffer);
 
 // Network Functions
 void serve(int port, char *logname);
-void start_client(char *hostname, int port);
+void start_client(const char *hostname, int port);
 
 #endif

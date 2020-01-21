@@ -39,7 +39,6 @@ void serve(int port, char *logname)
    * f: File Descriptor
    * itr: Iterating Variable
    * opt: Flag Value for setsockopt
-   * sendall: Send All Trigger
    * parentfd: Server Socket
    * maxsocketfd: Max Socket
    * itrsocketfd: Iterating Socket
@@ -52,7 +51,7 @@ void serve(int port, char *logname)
    * readfds: Socket Set
    * buffer: Server Byte Buffer
    */
-  int f, itr, opt, sendall;
+  int f, itr, opt;
   int parentfd, maxsocketfd, itrsocketfd, currentfd;
   int clientsocketlen;
   int clientsfd[MAX_CLIENT_SIZE];
@@ -105,11 +104,9 @@ void serve(int port, char *logname)
 
   /*
    * Set the client socket address length for looping.
-   * Set sendall to false.
    * Initialize f file descriptor to 0.
    */
   clientsocketlen = sizeof(clientaddr);
-  sendall = 0;
   f = 0;
 
   while (1)
@@ -163,6 +160,7 @@ void serve(int port, char *logname)
       if (!conn)
       {
         printf("No other players are connected. You won!\n");
+        log_game(f, logname, buffer);
         fflush(stdout);
         for (y = 0; y < 52; y++)
         {
@@ -187,7 +185,7 @@ void serve(int port, char *logname)
     }
     else
     {
-      printf("Type [finish setup] to start the game.\nServer: ");
+      printf("Type 'finish setup' to start the game.\nServer: ");
       fflush(stdout);
     }
 
@@ -211,7 +209,6 @@ void serve(int port, char *logname)
         if (!strcmp(buffer, "finish setup") && game_setup)
         {
           game_setup = 0;
-          sendall = 1;
           printf("\e[1;1H\e[2J");
           printf("The game has begun.\n");
           printf("-------------------\n");
@@ -220,6 +217,7 @@ void serve(int port, char *logname)
         if (!strcmp(buffer, "quit"))
         {
           printf("%s\n", buffer);
+          log_game(f, logname, buffer);
           fflush(stdout);
           for (y = 0; y < 52; y++)
           {
@@ -308,9 +306,11 @@ void serve(int port, char *logname)
      */
     if (!game_setup)
     {
+      log_game(f, logname, buffer);
       if (total == 0)
       {
         printf("No player left. You have won.\n");
+        log_game(f, logname, buffer);
         fflush(stdout);
         for (y = 0; y < 52; y++)
         {
@@ -421,6 +421,7 @@ void serve(int port, char *logname)
               }
             }
             printf("You have won!\n");
+            log_game(f, logname, buffer);
             fflush(stdout);
             for (y = 0; y < 52; y++)
             {
@@ -446,6 +447,7 @@ void serve(int port, char *logname)
         if (sum > 21)
         {
           printf("%s", buffer);
+          log_game(f, logname, buffer);
           fflush(stdout);
           if (itr > 0)
           {
@@ -482,6 +484,7 @@ void serve(int port, char *logname)
               }
               printf("%s\n", buffer);
               printf("No player left. You have won.\n");
+              log_game(f, logname, buffer);
               fflush(stdout);
               for (y = 0; y < 52; y++)
               {
@@ -542,6 +545,7 @@ void serve(int port, char *logname)
               }
             }
             printf("%s\n", buffer);
+            log_game(f, logname, buffer);
             printf("You have lost!\n");
             fflush(stdout);
             for (y = 0; y < 52; y++)
@@ -590,6 +594,7 @@ void serve(int port, char *logname)
         }
       }
       printf("%s", buffer);
+      log_game(f, logname, buffer);
       fflush(stdout);
       for (itr = 0; itr < MAX_CLIENT_SIZE; itr++)
       {
@@ -613,7 +618,6 @@ void serve(int port, char *logname)
               close(itrsocketfd);
               printf("Socket %d has disconnected.\n", clientsfd[itr]);
               fflush(stdout);
-              sendall = 1;
               bzero(buffer, MAX_BUFFER_SIZE);
               strcpy(buffer, "A socket has disconnected.\n\0");
               clientsfd[itr] = 0;
@@ -623,7 +627,6 @@ void serve(int port, char *logname)
             {
               char q_buf[10] = "fold";
               log_game(f, logname, buffer);
-              sendall = 1;
               if (!strcmp(buffer, "fold\n\n"))
               {
                 error_check("Server: Checking In Failed\n",
@@ -636,6 +639,7 @@ void serve(int port, char *logname)
                 if (!total)
                 {
                   printf("No players beside house left.\n");
+                  log_game(f, logname, buffer);
                   fflush(stdout);
                   for (y = 0; y < 52; y++)
                   {
@@ -681,6 +685,7 @@ void serve(int port, char *logname)
           }
         }
         printf("You have quit the game.\n");
+        log_game(f, logname, buffer);
         fflush(stdout);
         for (y = 0; y < 52; y++)
         {

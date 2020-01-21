@@ -1,5 +1,9 @@
+leiJun -- 2020-01-20 21:50
+	Clean up code when applicable. Add more instruction (specifically help and README.md).
+  Added a more detailed program launch and run.
+
 leiJun -- 2020-01-20 16:21
-	Create a multiple client select server. Integrate game with networking programs.
+	Create a multiple client select server with TCP instead. Integrate game with networking programs.
 
 zouJac -- 2020-01-10 23:58
 	Check for straight/flush
@@ -8,7 +12,8 @@ zouJac -- 2020-01-10 18:04
 	Can get card rank if it is a hand with multiple cards of the same number
 
 linJef -- 2020-01-10 10:25
-		Fixed syntax.
+	Fixed syntax. Helped with game design and interface. Helped with allocating memory.
+  Helped with diagnosting segmentation fault.
 
 zouJac -- 2020-01-04 19:04
 	Print out cards with unicode characters
