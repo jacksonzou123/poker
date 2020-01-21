@@ -13,6 +13,30 @@ This is a multiplayer poker game that can be played between players on the same 
 ### Dependencies
 * N/A
 
+### Instructions
+0. Clone the repository and change into the project directory.
+   ```bash
+   git clone https://github.com/jacksonzou123/poker.git
+   cd poker
+   ```
+1. Compile with make
+   ```bash
+   make
+   ```
+2. Run the program as the host. Enter the player name as instructed. Connect any clients before typing "finish setup".
+   ```bash
+   ./Poker server 8000 ?
+   ```
+3. Run the program as the client. This command assumes the client is started on the same machine on the network. Enter the player name as instructed.
+   ```bash
+   ./Poker client 8000 127.0.0.1
+   ```
+4. Type "finish setup" into the host program.
+5. Play the game! Type fold or quit to exit the program. Type c or continue to end your turn. The host or client will block until it is that player's turn
+   
+### Known Bugs
+* A minor memory leak happens if the user choose to run the program as the host. We can't figure where the leak is from as we are pretty sure that we close all heap memory that we declare. We suspect that the memory leak when used between functions or that there is a pointer within a double or triple pointer that may not be freed.
+
 ### Statement
 The premise of this project is to create a multiplayer poker game that can be played between players on the same network. The host server will be run on the computer of the player that initializes a session of poker, and every player will connect to that host. The poker will be based on Texas hold’em, but may not necessarily adhere to its entire ruleset. Players can bet with virtual currency, and each player will start with a predetermined minimum amount. 
 
