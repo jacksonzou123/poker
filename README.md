@@ -37,6 +37,11 @@ This is a multiplayer poker game that can be played between players on the same 
 ### Known Bugs
 * A minor memory leak happens if the user choose to run the program as the host. We can't figure where the leak is from as we are pretty sure that we close all heap memory that we declare. We suspect that the memory leak when used between functions or that there is a pointer within a double or triple pointer that may not be freed.
 
+### Notes
+* The program is tested heavily on the local machine (i.e. we mainly tested it on the same computer by running two and three instances of the game that use 127.0.0.1 as hostname).
+* The program's behavior is not very certain with a large number of players. Therefore, we recommend testing it with two to three players as we set that for our tests.
+* The program is tested, albeit not as heavily, on the school's computer via SSH. However, this is mainly tested on the same machine by running two to three instances.
+
 ### Statement
 The premise of this project is to create a multiplayer poker game that can be played between players on the same network. The host server will be run on the computer of the player that initializes a session of poker, and every player will connect to that host. The poker will be based on Texas hold’em, but may not necessarily adhere to its entire ruleset. Players can bet with virtual currency, and each player will start with a predetermined minimum amount. 
 
