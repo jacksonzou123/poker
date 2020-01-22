@@ -5,9 +5,6 @@ leiJun -- 2020-01-20 21:50
 leiJun -- 2020-01-20 16:21
 	Create a multiple client select server with TCP instead. Integrate game with networking programs.
 
-zouJac -- 2020-01-20 13:20
-	Implemented rules for blackjack
-
 zouJac -- 2020-01-10 23:58
 	Check for straight/flush
 
